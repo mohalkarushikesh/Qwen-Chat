@@ -6,6 +6,8 @@ Oryza Chatbot is a Flask-based web application that uses the Qwen 2.5 1.5B langu
 
 This project implements a lightweight chatbot stack with the following components:
 
+> Note: When deployed with Docker, the application runs as a self-hosted local system. The Qwen model is executed through Ollama on the host machine/server, so it can operate offline as long as the model is already available locally.
+
 - A Python Flask application serving the web interface
 - A backend integration to Ollama for local LLM inference
 - The Qwen 2.5 1.5B model as the conversational AI engine
@@ -144,6 +146,52 @@ The application can be configured through environment variables and runtime sett
 - Selected model name
 - Application port
 - Reverse proxy host mapping
+
+## Deployment Workflow
+
+When the project is started with Docker, the services run locally in separate containers:
+
+1. The browser sends requests to the Nginx reverse proxy.
+2. Nginx forwards the request to the Flask application container.
+3. The Flask app sends the prompt to the Ollama container.
+4. Ollama runs the locally stored Qwen model and returns the response.
+5. The response is sent back to the browser.
+
+```text
+┌─────────────────────────────────────────┐
+│         Your Machine / Server          │
+│                                         │
+│  ┌──────────────┐                       │
+│  │   Browser    │ (port 80)             │
+│  └──────┬───────┘                       │
+│         │                               │
+│  ┌──────▼───────────┐                   │
+│  │  Nginx (Docker)  │                   │
+│  └──────┬───────────┘                   │
+│         │ (internal network)           │
+│  ┌──────▼───────────────┐               │
+│  │  Flask App (Docker)  │               │
+│  └──────┬───────────────┘               │
+│         │ (internal network)           │
+│  ┌──────▼──────────────────────┐        │
+│  │  Ollama + Qwen 2.5 1.5B     │        │
+│  │  (model cached locally)    │        │
+│  └─────────────────────────────┘        │
+└─────────────────────────────────────────┘
+```
+
+The Qwen model is:
+
+- pre-downloaded when you first run Ollama with `ollama pull qwen2.5:1.5b`
+- stored locally in the Docker volume used by Ollama
+- executed locally without requiring cloud API calls
+
+This setup keeps the chatbot self-hosted and offline by default because:
+
+- all services run on the local machine or server
+- the Qwen model is executed through Ollama locally
+- the model is stored in a persistent Docker volume
+- no external cloud API is required for inference
 
 ## User Interface
 
