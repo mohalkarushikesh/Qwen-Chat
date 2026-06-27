@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, jsonify
+import os
+from pathlib import Path
+
 import requests
+from flask import Flask, jsonify, render_template, request
 
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5:1.5b"
+app = Flask(__name__, template_folder=str(BASE_DIR / "templates"))
+
+OLLAMA_BASE_URL = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+OLLAMA_URL = f"{OLLAMA_BASE_URL}/api/generate"
+MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b")
 
 
 @app.route("/")
@@ -12,12 +18,11 @@ def home():
     return render_template("index.html")
 
 
-# ── Debug endpoint: visit http://localhost:5000/health in browser ──
 @app.route("/health")
 def health():
     info = {"flask": "ok", "ollama": None, "model": MODEL}
     try:
-        r = requests.get("http://localhost:11434/api/tags", timeout=5)
+        r = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=5)
         models = [m["name"] for m in r.json().get("models", [])]
         info["ollama"] = "ok"
         info["available_models"] = models
@@ -43,14 +48,14 @@ def chat():
         response = requests.post(
             OLLAMA_URL,
             json={"model": MODEL, "prompt": prompt, "stream": False},
-            timeout=120
+            timeout=120,
         )
         print(f"[chat] ollama status={response.status_code}")
         response.raise_for_status()
 
     except requests.exceptions.ConnectionError as e:
         print(f"[chat] connection error: {e}")
-        return jsonify({"error": "Cannot connect to Ollama on port 11434. Is it running?"}), 503
+        return jsonify({"error": "Cannot connect to Ollama. Is it running?"}), 503
 
     except requests.exceptions.Timeout:
         return jsonify({"error": "Ollama timed out after 120s."}), 504
@@ -83,6 +88,7 @@ def chat():
 
 
 if __name__ == "__main__":
-    print("\n  Flask ready — http://localhost:5000")
-    print("  Check Ollama:  http://localhost:5000/health\n")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.getenv("PORT", "5000"))
+    print(f"\n  Flask ready — http://localhost:{port}")
+    print(f"  Check Ollama:  http://localhost:{port}/health\n")
+    app.run(host="0.0.0.0", port=port, debug=False)

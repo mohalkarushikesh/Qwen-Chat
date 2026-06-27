@@ -1,49 +1,40 @@
-# QwenChat
+# Oryza Chatbot
 
-QwenChat is a lightweight AI chat application powered by the Qwen Large Language Model running locally through Ollama. The project provides a simple interface for interacting with Qwen models without relying on external cloud APIs, enabling private and offline conversations.
+Oryza Chatbot is a lightweight AI assistant that runs locally through Ollama and serves a clean web interface for chatting with a local model. It is designed for privacy-friendly, self-hosted use and can be deployed with Docker.
 
 ## Features
 
 - Local AI chat using Ollama
-- Powered by Qwen language models
+- Oryza-branded web interface
 - Fast response generation
-- Privacy-focused (data remains on your machine)
-- Simple and easy-to-use interface
-- REST API integration with Ollama
-- Lightweight deployment
+- Privacy-focused deployment on your own machine
+- Simple Flask-based chat UI
+- Docker-ready setup with Nginx reverse proxy
 
 ## Tech Stack
 
 - Python
 - Flask
 - Ollama
-- Qwen Models
 - HTML/CSS/JavaScript
+- Docker / Docker Compose
 
 ## Prerequisites
 
 Before running the project, ensure you have:
 
 - Python 3.10+
+- Docker and Docker Compose
 - Ollama installed
-- A Qwen model pulled locally
-
-Example:
+- A local model pulled, for example:
 
 ```bash
-ollama pull qwen3
-````
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/your-username/QwenChat.git
-cd QwenChat
+ollama pull qwen2.5:1.5b
 ```
 
-Create a virtual environment:
+## Local Development
+
+Create and activate a virtual environment:
 
 ```bash
 python -m venv venv
@@ -56,60 +47,64 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-## Running Ollama
-
-Start the Ollama service:
+Run the app locally:
 
 ```bash
-ollama serve
+python app/main.py
 ```
 
-Verify the model is available:
-
-```bash
-ollama list
-```
-
-## Running the Application
-
-```bash
-python app.py
-```
-
-Open your browser and navigate to:
+Open your browser at:
 
 ```text
 http://localhost:5000
 ```
 
+## Docker Deployment
+
+From the project root, run:
+
+```bash
+docker compose up -d --build
+```
+
+The app will be served through the proxy on:
+
+```text
+http://localhost/
+```
+
+For a custom domain, update the Nginx host configuration in `nginx.conf` and point your DNS to the server IP.
+
 ## Project Structure
 
 ```text
-QwenChat/
-├── app.py
-├── requirements.txt
+Qwen-Chat/
+├── app/
+│   └── main.py
 ├── templates/
-├── static/
-├── README.md
-└── screenshots/
+│   └── index.html
+├── docker-compose.yml
+├── Dockerfile
+├── nginx.conf
+├── requirements.txt
+└── README.md
 ```
 
 ## How It Works
 
-1. User submits a prompt through the chat interface.
-2. Flask receives the request.
-3. The application sends the prompt to Ollama.
-4. Ollama runs the local Qwen model.
-5. The generated response is returned to the user interface.
+1. The Flask app receives the user prompt.
+2. It sends the prompt to Ollama.
+3. Ollama runs the selected local model.
+4. The generated response is returned to the web UI.
 
 ## Future Improvements
 
-* Conversation history
-* Streaming responses
-* Multiple model selection
-* Dark mode
-* User authentication
-* Docker deployment
+- Conversation history
+- Streaming responses
+- Multiple model selection
+- Dark mode
+- Authentication
+- HTTPS with Let’s Encrypt
 
 ## License
 
@@ -117,6 +112,4 @@ This project is licensed under the MIT License.
 
 ## Author
 
-Rushikesh Mohalkar
-
-![User Interface](./images/ui.png)
+Oryza Labs - Rushikesh Mohalkar

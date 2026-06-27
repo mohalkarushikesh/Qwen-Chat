@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qwen Chat</title>
+  <title>Oryza Chatbot</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <!-- marked.js for markdown parsing -->
@@ -317,15 +317,15 @@
 <body>
 <div id="app">
   <header>
-    <div class="logo">Q</div>
-    <h1>Qwen <span>Chat</span></h1>
-    <div class="status-dot"><div class="dot"></div>Local Model</div>
+    <div class="logo">O</div>
+    <h1><span>Oryza Chatbot</span></h1>
+    <div class="status-dot"><div class="dot"></div>Oryza AI</div>
   </header>
 
   <div id="messages">
     <div id="empty">
       <div class="big-icon">✦</div>
-      <p>Start a conversation with your local Qwen model.</p>
+      <p>Start a conversation with your Oryza chatbot.</p>
       <div class="chips">
         <span class="chip" onclick="useChip(this)">Explain quantum computing</span>
         <span class="chip" onclick="useChip(this)">Write a Python script</span>
@@ -336,7 +336,7 @@
 
   <div id="input-bar">
     <div class="input-wrap">
-      <textarea id="prompt" rows="1" placeholder="Message Qwen…"></textarea>
+      <textarea id="prompt" rows="1" placeholder="Message Oryza…"></textarea>
       <button id="send-btn" onclick="sendPrompt()" title="Send (Enter)">➤</button>
     </div>
     <p class="hint">Enter to send · Shift+Enter for new line</p>
@@ -364,7 +364,18 @@
   }
 
   // ── Parse Qwen's <think>…</think> tags ──
+  function normalizeResponse(raw) {
+    return raw
+      .replace(/I am Qwen, a large language model developed by Alibaba Cloud/gi, 'I am Oryza, a chatbot developed by oryzalabs')
+      .replace(/\bQwen Chat\b/gi, 'Oryza Chatbot')
+      .replace(/\bQwen\b/gi, 'Oryza')
+      .replace(/Alibaba Cloud/gi, 'oryzalabs')
+      .replace(/large language model/gi, 'chatbot')
+      .replace(/language model/gi, 'chatbot');
+  }
+
   function parseQwenResponse(raw) {
+    raw = normalizeResponse(raw);
     const thinkRegex = /<think>([\s\S]*?)<\/think>/gi;
     let thinking = [];
     let match;
@@ -438,7 +449,7 @@
 
     const avatar = document.createElement('div');
     avatar.className = 'avatar';
-    avatar.textContent = role === 'user' ? 'U' : 'Q';
+    avatar.textContent = role === 'user' ? 'U' : 'O';
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
@@ -469,7 +480,7 @@
     const row = document.createElement('div');
     row.className = 'msg assistant'; row.id = 'typing-row';
     row.innerHTML = `
-      <div class="avatar">Q</div>
+      <div class="avatar">O</div>
       <div class="bubble" style="padding:14px 16px">
         <div class="typing-indicator">
           <span></span><span></span><span></span>
